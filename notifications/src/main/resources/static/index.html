@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notifications en temps réel</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<div id="notifications"></div>
+
+<script>
+    const userId = 1; // ID de l'utilisateur actuel
+    const socket = new SockJS('/gs-guide-websocket');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function(frame) {
+        console.log('Connected: ' + frame);
+
+        // S'abonner aux notifications personnelles
+        stompClient.subscribe('/user/queue/notifications', function(message) {
+            const notification = JSON.parse(message.body);
+            showNotification(notification);
+        });
+
+        // S'abonner aux notifications globales (optionnel)
+        stompClient.subscribe('/topic/global-notifications', function(message) {
+            const notification = JSON.parse(message.body);
+            showNotification(notification);
+        });
+    });
+
+    function showNotification(notification) {
+        const div = document.createElement('div');
+        div.innerHTML = `
+                <h3>${notification.title}</h3>
+                <p>${notification.content}</p>
+                <small>${new Date(notification.createdAt).toLocaleString()}</small>
+            `;
+        document.getElementById('notifications').prepend(div);
+
+        // Animation ou style pour nouvelle notification
+        div.style.animation = "highlight 2s";
+    }
+
+    // Exemple: Marquer une notification comme lue
+    function markAsRead(notificationId) {
+        fetch(`/api/notifications/${notificationId}/read`, {
+            method: 'PUT'
+        });
+    }
+</script>
+
+<style>
+    @keyframes highlight {
+        0% { background-color: yellow; }
+        100% { background-color: white; }
+    }
+</style>
+</body>
+</html>

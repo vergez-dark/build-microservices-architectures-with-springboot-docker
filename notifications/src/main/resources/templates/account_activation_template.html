@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activation de compte</title>
+    <style>
+        /* Reset de base */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Conteneur principal */
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 650px;
+            margin: 40px auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* En-tête */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .banner {
+            width: 100%;
+            max-width: 650px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        /* Titre */
+        h1 {
+            color: #FF6B35;
+            /* Orange vif */
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* Paragraphes */
+        p {
+            font-size: 16px;
+            margin: 10px 0;
+            color: #555;
+        }
+
+        .bold {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Bouton CTA */
+        .cta-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #FF6B35;
+            /* Orange vif */
+            color: white;
+            border-radius: 6px;
+            font-size: 16px;
+            text-decoration: none;
+            margin-top: 20px;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .cta-button:hover {
+            background-color: #E65A2E;
+            /* Orange plus foncé au survol */
+        }
+
+        /* Liens */
+        a {
+            color: #FF6B35;
+            /* Orange vif */
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Pied de page */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .footer a {
+            color: #FF6B35;
+            /* Orange vif */
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .cta-button {
+                width: 100%;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <img src="cid:logo" alt="Blog Intergiciel Project Managment" class="banner">
+        </div>
+
+        <h1>Bonjour <span th:text="${name}">Utilisateur</span> 👋,</h1>
+
+        <p>Félicitations 🎉🎊! Votre compte utilisateur a bien été créé sur <a th:href="${siteUrl}">Blog Intergiciel Project Managment</a>.
+        </p>
+
+        <p>Pour l'activer et découvrir toutes les possibilités offertes par notre plateforme, veuillez cliquer sur le
+            lien ci-dessous :</p>
+
+        <a th:href="@{${accountActivationUrl}}" class="cta-button">Activer mon compte</a>
+
+        <div class="footer">
+            <p>Nous restons à votre disposition pour toute question ou assistance.</p>
+            <p>Cordialement,</p>
+            <p><strong>L'équipe Blog Intergiciel Project Managment</strong></p>
+            <p>📞 (237) 690 xx xx xx / 656 xx xx xx</p>
+            <p>📧 Email : <a href="mailto:support@blogintermanagment.com">support@blogintermanagment.com</a></p>
+        </div>
+    </div>
+
+</body>
+
+</html>

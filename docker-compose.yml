@@ -1,0 +1,193 @@
+version: "3.8"
+
+services:
+  discovery-service:
+    build: ./discovery-service
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+
+  gateway:
+    build: ./gateway-service
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - discovery-service
+      - media-service-app
+    networks:
+      - app-network
+
+  user-service:
+    build: ./authentications
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - discovery-service
+      - postgres-auth
+    networks:
+      - app-network
+
+  comment-service:
+    build: ./comment_service
+    ports:
+      - "8078:8078"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - discovery-service
+      - mysql-comment
+    networks:
+      - app-network
+
+  media-service-app:
+    build:
+      context: ./laravel-media-service-main
+      target: php
+      args:
+        - APP_ENV=${APP_ENV}
+    environment:
+      - APP_ENV=${APP_ENV}
+      - CONTAINER_ROLE=app
+    working_dir: /var/www
+    volumes:
+      - ./laravel-media-service-main:/var/www
+    ports:
+      - 8000:8000
+    depends_on:
+      - database-media
+    networks:
+      - app-network
+
+  notification-service:
+    build: ./notifications
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - postgres-notification
+      - discovery-service
+      - rabbitmq
+      - mailhog
+    networks:
+      - app-network
+
+  post-service:
+    build: ./POST-SERVICE
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - discovery-service
+      - postgres-post
+      - gateway
+    networks:
+      - app-network
+
+  postgres-auth:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Admin
+      - POSTGRES_DB=blog_db_auth
+    volumes:
+      - postgres-auth-data:/var/lib/postgresql/data
+    ports:
+      - "5431:5432"
+    networks:
+      - app-network
+
+  postgres-notification:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Admin
+      - POSTGRES_DB=blog_db
+    volumes:
+      - postgres-notification-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+
+  postgres-post:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Admin
+      - POSTGRES_DB=post_db
+    volumes:
+      - postgres-post-data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - app-network
+
+    # Database Server
+  database-media:
+    image: mysql:8.0
+    ports:
+      - 3399:3306
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  mysql-comment:
+    image: mysql:8
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=security
+    volumes:
+      - mysql-comment-data:/var/lib/mysql
+    ports:
+      - "3308:3306"
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - app-network
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - app-network
+
+volumes:
+  postgres-auth-data:
+  postgres-notification-data:
+  postgres-post-data:
+  rabbitmq-data:
+  mysql-media-data:
+  mysql-comment-data:
+  db-data: ~
+
+networks:
+  app-network:
+    driver: bridge

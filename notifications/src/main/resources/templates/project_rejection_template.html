@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejet de Projet</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 650px;
+            margin: 40px auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .banner {
+            width: 100%;
+            max-width: 650px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #DC3545;
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 16px;
+            margin: 10px 0;
+            color: #555;
+        }
+
+        .bold {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #DC3545;
+            color: white;
+            border-radius: 6px;
+            font-size: 16px;
+            text-decoration: none;
+            margin-top: 20px;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .cta-button:hover {
+            background-color: #C82333;
+        }
+
+        a {
+            color: #DC3545;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .footer a {
+            color: #DC3545;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .cta-button {
+                width: 100%;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <img src="cid:logo" alt="OdcManagment" class="banner">
+        </div>
+
+        <h1>Votre projet a été rejeté ❌</h1>
+
+        <p>Bonjour <span class="bold" th:text="${userName}">Utilisateur</span>,</p>
+
+        <p>Nous sommes désolés de vous informer que votre projet intitulé <span class="bold" th:text="${projectTitle}">Nom du Projet</span> n'a pas été validé.</p>
+
+        <!-- <p>Raison du rejet : <span class="bold" th:text="${rejectionReason}">Motif du rejet</span>.</p> -->
+
+        <p>Nous vous encourageons à revoir votre projet et à le soumettre à nouveau après avoir apporté les modifications nécessaires.</p>
+
+        <!-- <a th:href="@{${projectDetailsUrl}}" class="cta-button">Modifier mon projet</a> -->
+
+        <div class="footer">
+            <p>Nous restons à votre disposition pour toute question ou assistance.</p>
+            <p>Cordialement,</p>
+            <p><strong>L'équipe OdcManagment</strong></p>
+            <p>📞 (237) 690 79 45 16 / 656 34 60 31</p>
+            <p>📧 Email : <a href="mailto:support@odcmanagment.com">support@odcmanagment.com</a></p>
+        </div>
+    </div>
+
+</body>
+
+</html>
