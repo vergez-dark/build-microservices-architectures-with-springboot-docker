@@ -1,0 +1,4 @@
+FROM mailhog/mailhog
+
+EXPOSE 1025
+EXPOSE 8025
