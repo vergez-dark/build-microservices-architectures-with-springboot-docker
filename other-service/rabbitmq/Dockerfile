@@ -1,9 +1,0 @@
-FROM rabbitmq:3-management
-
-ENV RABBITMQ_DEFAULT_USER=guest
-ENV RABBITMQ_DEFAULT_PASS=guest
-
-VOLUME ["/var/lib/rabbitmq"]
-
-EXPOSE 5672
-EXPOSE 15672
