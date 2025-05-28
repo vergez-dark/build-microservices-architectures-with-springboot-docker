@@ -12,6 +12,7 @@ import com.blog.authentications.entities.AppRole;
 import com.blog.authentications.entities.Token;
 import com.blog.authentications.entities.Users;
 import com.blog.authentications.exceptions.GeneralException;
+import com.blog.authentications.exceptions.NoActiveUserException;
 import com.blog.authentications.exceptions.RessourceNotFoundException;
 import com.blog.authentications.model.ActivationHashGenerator;
 import com.blog.authentications.repo.ActivationHashRepository;
@@ -109,6 +110,10 @@ public class AccountServiceImpl implements AccountService {
     public SignUpResponse signUp(SignUpRequest signUpRequest) {
         if (signUpRequest==null) {
             throw new IllegalArgumentException("signUpRequest must not be null");
+        }
+        if (appUserRepository.findByUsername(signUpRequest.getUsername()).isPresent() ||
+            appUserRepository.findByEmail(signUpRequest.getEmail()).isPresent()) {
+            throw new NoActiveUserException("Username OR email already taken");
         }
         Users user = new Users();
         AppRole role = appRoleRepository.findByRoleName("USER").orElseThrow(()->{

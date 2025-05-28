@@ -51,15 +51,29 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     //la methode qui va s'executer quand l'utilisateur va tenter de s'authentifier
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        try{
-            System.out.println("attemptAuthentication");
-            LoginRequest credentials = new ObjectMapper().readValue(request.getInputStream(), LoginRequest.class);
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(credentials.getLogin(), credentials.getPassword());
+        try {
+            String contentType = request.getContentType();
+
+            String login;
+            String password;
+
+            if (contentType != null && contentType.contains("application/json")) {
+                LoginRequest credentials = new ObjectMapper().readValue(request.getInputStream(), LoginRequest.class);
+                login = credentials.getLogin();
+                password = credentials.getPassword();
+            } else {
+                throw new RuntimeException("Unsupported Content-Type: " + contentType);
+            }
+
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(login, password);
+
             return authenticationManager.authenticate(authenticationToken);
-        }catch (IOException e){
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading authentication request", e);
         }
     }
+
 
 
     //la methode qui va s'executer si l'authentification reussi

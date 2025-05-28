@@ -33,4 +33,5 @@ public class CustomExceptionHandler {
         System.out.println(apiError);
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
+
 }
