@@ -11,6 +11,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class PostServiceApplication {
 
 	public static void main(String[] args) {
+		System.out.println("STart POST-SERVICE");
 		SpringApplication.run(PostServiceApplication.class, args);
 	}
 

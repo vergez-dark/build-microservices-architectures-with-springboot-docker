@@ -117,11 +117,4 @@ pipeline {
             }
         }
     }
-
-    // post {
-    //     always {
-    //         // Nettoyage
-    //         sh 'docker logout'
-    //     }
-    // }
 }
