@@ -91,7 +91,6 @@ pipeline {
 
         // stage('Test Staging') {
         //     when {
-    // }
         //         expression { GIT_BRANCH == 'origin/main' }
         //     }
         //     steps {
