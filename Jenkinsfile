@@ -13,6 +13,12 @@ pipeline {
     }
 
     stages {
+        stage('Préparation') {
+            steps {
+                // Donner les droits d'exécution au script
+                sh 'chmod +x laravel-media-service-main/docker/entrypoint.sh'
+            }
+        }
         stage('Test') {
             steps {
                 // Exécution des tests pour chaque service
