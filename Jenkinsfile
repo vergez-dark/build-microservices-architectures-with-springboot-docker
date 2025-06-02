@@ -63,6 +63,7 @@ pipeline {
                     
                     // Copie du docker-compose.yml
                     sh 'cp ./docker-compose.yml inter-deploy/'
+                    
 
                 }
             }
@@ -83,10 +84,10 @@ pipeline {
                         
                         # Copie des fichiers de déploiement
                         scp -r ./* zero@${HOSTNAME_DEPLOY_STAGING}:/home/zero/inter-deploy/
-                        
                         # Exécution des commandes de déploiement
                         ssh -t zero@${HOSTNAME_DEPLOY_STAGING} '
                             cd /home/zero/inter-deploy &&
+                            chmod +x laravel-media-service-main/docker/entrypoint.sh &&
                             docker compose down &&
                             docker compose up -d --build
                         '
