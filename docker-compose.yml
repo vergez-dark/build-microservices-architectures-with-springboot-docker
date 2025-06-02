@@ -57,7 +57,7 @@ services:
     volumes:
       - ./laravel-media-service-main:/var/www
     ports:
-      - 8000:8000
+      - 8016:8000
     depends_on:
       - database-media
     networks:
