@@ -9,7 +9,7 @@ pipeline {
         DOCKERHUB_AUTH = credentials('DockerHubCredentials')
         HOSTNAME_DEPLOY_STAGING = "192.168.42.3"
         // Liste des services à construire et déployer
-        SERVICES = ['discovery-service', 'gateway', 'user-service', 'comment-service', 'notification-service', 'post-service', 'media-service-app']
+         SERVICES = "discovery-service,gateway,user-service,comment-service,notification-service,post-service,media-service-app"
     }
 
     stages {
