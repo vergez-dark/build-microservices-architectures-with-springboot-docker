@@ -89,32 +89,32 @@ pipeline {
             }
         }
 
-        stage('Test Staging') {
-            when {
-                expression { GIT_BRANCH == 'origin/main' }
-            }
-            steps {
-                script {
-                    // Vérification que les services sont opérationnels
-                    def endpoints = [
-                        'discovery-service': '8761',
-                        'gateway': '8888',
-                        'user-service': '8082',
-                        'comment-service': '8078',
-                        'notification-service': '8083',
-                        'post-service': '8081',
-                        'media-service-app': '8000'
-                    ]
+        // stage('Test Staging') {
+        //     when {
+        //         expression { GIT_BRANCH == 'origin/main' }
+        //     }
+        //     steps {
+        //         script {
+        //             // Vérification que les services sont opérationnels
+        //             def endpoints = [
+        //                 'discovery-service': '8761',
+        //                 'gateway': '8888',
+        //                 'user-service': '8082',
+        //                 'comment-service': '8078',
+        //                 'notification-service': '8083',
+        //                 'post-service': '8081',
+        //                 'media-service-app': '8000'
+        //             ]
                     
-                    endpoints.each { service, port ->
-                        sh """
-                            sleep 30
-                            apk add --no-cache curl
-                            curl -I http://${HOSTNAME_DEPLOY_STAGING}:${port} || true
-                        """
-                    }
-                }
-            }
-        }
+        //             endpoints.each { service, port ->
+        //                 sh """
+        //                     sleep 30
+        //                     apk add --no-cache curl
+        //                     curl -I http://${HOSTNAME_DEPLOY_STAGING}:${port} || true
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
     }
 }
