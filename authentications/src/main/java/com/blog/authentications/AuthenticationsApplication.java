@@ -1,7 +1,6 @@
 package com.blog.authentications;
 
 import com.blog.authentications.entities.AppRole;
-import com.blog.authentications.entities.Users;
 import com.blog.authentications.repo.AppRoleRepository;
 import com.blog.authentications.service.AccountService;
 import org.springframework.boot.CommandLineRunner;
