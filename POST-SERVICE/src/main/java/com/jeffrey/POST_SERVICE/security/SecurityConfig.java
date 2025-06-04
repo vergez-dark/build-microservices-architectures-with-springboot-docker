@@ -57,9 +57,14 @@ public class SecurityConfig {
                                 "/configuration/security",
                                 "/swagger-ui/**",
                                 "/webjars/**",
+                                "/api/posts/**",
+                                "/api/categories",
                                 "/swagger-ui.html")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/posts/{id:\\d+}").permitAll()
+                        // .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
+                        // .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                        // .requestMatchers(HttpMethod.GET,"/api/posts/{id:\\d+}").permitAll()
+                        // .requestMatchers(HttpMethod.GET,"/api/categories/{id:\\d+}").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthorizationFilter(userServiceClient),
                         UsernamePasswordAuthenticationFilter.class);

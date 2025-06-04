@@ -1,7 +1,6 @@
 
 package com.example.comment_service.service;
 
-import com.example.comment_service.dto.CommentDto;
 import com.example.comment_service.dto.CommentRequest;
 import com.example.comment_service.dto.UsersDto;
 import com.example.comment_service.model.Comment;
