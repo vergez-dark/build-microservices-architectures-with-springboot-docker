@@ -12,7 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->remove(\Illuminate\Http\Middleware\HandleCors::class);
+         $middleware->alias([
+            'emptyCors' => \App\Http\Middleware\EmptyCorsMiddleware::class,
+        ]);
+        $middleware->appendToGroup('api', \App\Http\Middleware\EmptyCorsMiddleware::class);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -20,4 +20,5 @@ public interface PostService {
 
     List<PostResponse> getPostsByCategory(Long category_id);
     PostResponse getPostsBySlug(String slug);
+    List<PostResponse> getPostsByUserId(Long user_id);
 }

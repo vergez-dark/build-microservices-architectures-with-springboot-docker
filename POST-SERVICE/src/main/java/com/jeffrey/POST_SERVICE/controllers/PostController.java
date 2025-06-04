@@ -76,11 +76,17 @@ public class PostController {
     }
 
     // delete post
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePost(@PathVariable("id") long id) {
         postService.deletePostById(id);
         return ResponseEntity.ok("Post deleted successfully!");
     }
     
+    // get posts by slug
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<PostResponse>> getPostsByUserId(@PathVariable("id") Long id) {
+        List<PostResponse> posts = postService.getPostsByUserId(id);
+        return ResponseEntity.ok(posts);
+    }
     
 }

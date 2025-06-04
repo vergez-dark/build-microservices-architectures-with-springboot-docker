@@ -1,6 +1,7 @@
 package com.jeffrey.POST_SERVICE.services.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,47 +52,71 @@ public class PostServiceImpl implements PostService {
     private final MediaMapper mediaMapper;
     private final CategoryMapper categoryMapper;
 
+    private User fetchUserWithFallback(Long userId) {
+        try {
+            ResponseEntity<User> response = userServiceClient.findUserById(userId);
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                return response.getBody();
+            }
+        } catch (Exception e) {
+            // Log error if needed
+        }
+        return null;
+    }
+
+    private List<Comment> fetchCommentsWithFallback(Long postId) {
+        try {
+            ResponseEntity<List<Comment>> response = commentServiceClient.getCommentsByPostId(postId);
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                return response.getBody();
+            }
+        } catch (Exception e) {
+            // Log error if needed
+        }
+        return List.of();
+    }
+
+    private List<Media> fetchMediaWithFallback(Long postId) {
+        try {
+            ResponseEntity<List<Media>> response = mediaServiceClient.getMediaByPostId(postId);
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                return response.getBody();
+            }
+        } catch (Exception e) {
+            // Log error if needed
+        }
+        return List.of();
+    }
+
     @Override
     public PostResponse createPost(PostRequest postRequest) {
-        ResponseEntity<User> user  = userServiceClient.findUserById(postRequest.getUser_id());
-       if (!user.getStatusCode().equals(HttpStatus.OK)) {
+        User user = fetchUserWithFallback(postRequest.getUser_id());
+        if (user == null) {
             throw new ResourceNotFoundException("User", "id", postRequest.getUser_id());
         }
-        if (postRequest.getCategory_id() == null) {
-            throw new ResourceNotFoundException("Category", "id", postRequest.getCategory_id());
-        
-       }
+
         Category category = categoryRepository.findById(postRequest.getCategory_id())
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", postRequest.getCategory_id()));
         
         Post post = postMapper.toPost(postRequest);
         post.setCategory(category);
-        post.setUser(user.getBody());
-        post.setSlug(postRequest.getTitle().toLowerCase().replaceAll(" ", "-"));
-        Post savedPost = postRepository.save(post);
-        PostResponse savedPostResponse = postMapper.toPostResponse(savedPost);
-        UserResponse userMapped = userMapper.toUserResponse(savedPost.getUser());
-        savedPostResponse.setUser(userMapped);
-        return savedPostResponse;
+        post.setUser(user);
+        post.setSlug(generateSlug(postRequest.getTitle()));
         
+        Post savedPost = postRepository.save(post);
+        return buildPostResponse(savedPost);
     }
 
     @Override
     public PostResponses getAllPosts(int pageNo, int pageSize, String sortBy, String sortDir) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, 
             sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
+        
         Page<Post> posts = postRepository.findAll(pageable);
         List<PostResponse> postResponses = posts.stream()
-            .map(post -> {
-                ResponseEntity <List<Comment>> comments = commentServiceClient.getCommentsByPostId(post.getId());
-                ResponseEntity <List <Media>> media = mediaServiceClient.getMediaByPostId(post.getId());
-                PostResponse postResponse = postMapper.toPostResponse(post);
-                postResponse.setMedia(mediaMapper.toMediaResponse(media.getBody()));
-                ResponseEntity<User> user  = userServiceClient.findUserById(post.getUser_id());
-                postResponse.setUser(userMapper.toUserResponse(user.getBody()));
-                postResponse.setComments(commentMapper.toCommentResponse(comments.getBody()));
-                return postResponse;
-            }).toList();
+            .map(this::buildPostResponse)
+            .toList();
+
         PostResponses postResponsesPage = new PostResponses();
         postResponsesPage.setContent(postResponses);
         postResponsesPage.setPageNo(posts.getNumber());
@@ -106,86 +131,89 @@ public class PostServiceImpl implements PostService {
     public PostResponse getPostById(long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
-        PostResponse postResponse = postMapper.toPostResponse(post);
-        postResponse.setCategory(categoryMapper.toCategoryResponse(post.getCategory()));
-        ResponseEntity<User> user  = userServiceClient.findUserById(post.getUser_id());
-        postResponse.setUser(userMapper.toUserResponse(user.getBody()));
-        ResponseEntity <List<Comment>> comments = commentServiceClient.getCommentsByPostId(post.getId());
-        ResponseEntity <List <Media>> media = mediaServiceClient.getMediaByPostId(post.getId());
-        postResponse.setMedia(mediaMapper.toMediaResponse(media.getBody()));
-        postResponse.setComments(commentMapper.toCommentResponse(comments.getBody()));
-        return postResponse;
+        return buildPostResponse(post);
     }
 
     @Override
     public PostResponse updatePost(PostRequest postRequest, long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
-        ResponseEntity<User> user = userServiceClient.findUserById(postRequest.getUser_id());
-        if (!user.getStatusCode().equals(HttpStatus.OK)) {
+
+        User user = fetchUserWithFallback(postRequest.getUser_id());
+        if (user == null) {
             throw new ResourceNotFoundException("User", "id", postRequest.getUser_id());
         }
+
         Category category = categoryRepository.findById(postRequest.getCategory_id())
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", postRequest.getCategory_id()));
 
         post.setTitle(postRequest.getTitle());
         post.setContent(postRequest.getContent());
         post.setCategory(category);
-        post.setUser(user.getBody());
-        post.setSlug(postRequest.getTitle().toLowerCase().replaceAll(" ", "-"));
+        post.setUser(user);
+        post.setSlug(generateSlug(postRequest.getTitle()));
         post.setUser_id(postRequest.getUser_id());
-        post.setCategory(category);
 
         Post updatedPost = postRepository.save(post);
-        PostResponse updatedPostResponse = postMapper.toPostResponse(updatedPost);
-        ResponseEntity <List<Comment>> comments = commentServiceClient.getCommentsByPostId(updatedPost.getId());
-        ResponseEntity <List <Media>> media = mediaServiceClient.getMediaByPostId(updatedPost.getId());
-        updatedPostResponse.setMedia(mediaMapper.toMediaResponse(media.getBody()));
-        updatedPostResponse.setComments(commentMapper.toCommentResponse(comments.getBody()));
-        updatedPostResponse.setUser(userMapper.toUserResponse(updatedPost.getUser()));
-        return updatedPostResponse;
+        return buildPostResponse(updatedPost);
     }
 
     @Override
     public void deletePostById(long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
-        postRepository.delete(post);
+        if (!postRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Post", "id", id);
+        }
+        postRepository.deleteById(id);
     }
 
     @Override
     public List<PostResponse> getPostsByCategory(Long category_id) {
-        categoryRepository.findById(category_id).orElseThrow(() -> new ResourceNotFoundException("Category", "id", category_id));
-        List<Post> posts = postRepository.findByCategoryId(category_id);
-        List<PostResponse> postResponses = posts.stream()
-            .map(post -> {
-                ResponseEntity <List<Comment>> comments = commentServiceClient.getCommentsByPostId(post.getId());
-                ResponseEntity <List <Media>> media = mediaServiceClient.getMediaByPostId(post.getId());
-                PostResponse postResponse = postMapper.toPostResponse(post);
-                ResponseEntity<User> user  = userServiceClient.findUserById(post.getUser_id());
-                if (!user.getStatusCode().equals(HttpStatus.OK)) {
-                    throw new ResourceNotFoundException("User", "id", post.getUser_id());
-                }
-                postResponse.setUser(userMapper.toUserResponse(user.getBody()));
-                postResponse.setComments(commentMapper.toCommentResponse(comments.getBody()));
-                postResponse.setMedia(mediaMapper.toMediaResponse(media.getBody()));
-                return postResponse;
-            }).toList();
-        return postResponses;
+        if (!categoryRepository.existsById(category_id)) {
+            throw new ResourceNotFoundException("Category", "id", category_id);
+        }
+        
+        return postRepository.findByCategoryId(category_id).stream()
+            .map(this::buildPostResponse)
+            .toList();
     }
-    @Override
-    public PostResponse getPostsBySlug(String slug)  {
-        Post post = postRepository.findBySlug(slug);
-        PostResponse postResponse = postMapper.toPostResponse(post);
-        ResponseEntity<User> user  = userServiceClient.findUserById(post.getUser_id());
-        postResponse.setUser(userMapper.toUserResponse(user.getBody()));
-        ResponseEntity <List<Comment>> comments = commentServiceClient.getCommentsByPostId(post.getId());
-        ResponseEntity <List <Media>> media = mediaServiceClient.getMediaByPostId(post.getId());
-        postResponse.setMedia(mediaMapper.toMediaResponse(media.getBody()));
-        postResponse.setComments(commentMapper.toCommentResponse(comments.getBody()));
-        return postResponse;
-    }
-    
 
-    
+    @Override
+    public PostResponse getPostsBySlug(String slug) {
+        Post post = Optional.ofNullable(postRepository.findBySlug(slug))
+                .orElseThrow(() -> new ResourceNotFoundException("Post" , "slug", 1));
+        return buildPostResponse(post);
+    }
+
+    private PostResponse buildPostResponse(Post post) {
+        PostResponse response = postMapper.toPostResponse(post);
+        response.setCategory(categoryMapper.toCategoryResponse(post.getCategory()));
+        
+        User user = post.getUser() != null ? post.getUser() : fetchUserWithFallback(post.getUser_id());
+        if (user != null) {
+            response.setUser(userMapper.toUserResponse(user));
+        }
+        
+        List<Comment> comments = fetchCommentsWithFallback(post.getId());
+        response.setComments(commentMapper.toCommentResponse(comments));
+        
+        List<Media> media = fetchMediaWithFallback(post.getId());
+        response.setMedia(mediaMapper.toMediaResponse(media));
+        
+        return response;
+    }
+
+    private String generateSlug(String title) {
+        return title.toLowerCase().replaceAll(" ", "-");
+    }
+
+    @Override
+    public List<PostResponse> getPostsByUserId(Long user_id) {
+        // if (!categoryRepository.existsById(user_id)) {
+        //     throw new ResourceNotFoundException("User", "id", user_id);
+        // }
+        
+        return postRepository.findByUserId(user_id).stream()
+            .map(this::buildPostResponse)
+            .toList();
+    }
 }

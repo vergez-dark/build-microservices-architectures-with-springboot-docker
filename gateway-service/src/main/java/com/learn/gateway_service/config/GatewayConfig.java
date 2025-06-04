@@ -24,7 +24,7 @@ public class GatewayConfig {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route("MEDIA-SERVICE", r -> r.path("/api/media/**")
-                        .uri(uri))
+                        .uri("http://localhost:8000"))
 
                 .build();
     }
@@ -37,7 +37,7 @@ public class GatewayConfig {
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Ou spécifiez vos origines
+        corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfig.setAllowedHeaders(Arrays.asList("*"));
         corsConfig.setAllowCredentials(true);
