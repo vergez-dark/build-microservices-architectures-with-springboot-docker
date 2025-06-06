@@ -45,10 +45,9 @@ class MediaController extends Controller
            'url_media' => ['required', 'image','mimes:jpg,jpeg,png,gif,mp4,mov,avi', 'max:4096'],
            'post_id' => ['required', 'numeric'],
         ]);
-
         $file = $request->file('url_media');
         $path = $file->store('medias', 'public');
-        $url = asset("storage/{$path}");
+        $url = "https://2t1tj96z-8000.use.devtunnels.ms/storage/{$path}";
         $media = Media::create([
             'name' => $file->getClientOriginalName(),
             'url_media' => $url,
