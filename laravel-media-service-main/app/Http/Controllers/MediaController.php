@@ -47,7 +47,7 @@ class MediaController extends Controller
         ]);
         $file = $request->file('url_media');
         $path = $file->store('medias', 'public');
-        $url = "https://2t1tj96z-8000.use.devtunnels.ms/storage/{$path}";
+        $url = "https://pr57sjn3-8016.uks1.devtunnels.ms/storage/{$path}";
         $media = Media::create([
             'name' => $file->getClientOriginalName(),
             'url_media' => $url,
